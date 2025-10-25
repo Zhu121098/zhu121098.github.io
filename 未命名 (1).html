@@ -1,0 +1,1984 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FinZoo 金融乐园</title>
+    <style>
+        /* 基础样式：延续原年轻化深蓝+活力金配色，贴合股票主题 */
+        :root {
+            --main-blue: #0F3460;
+            --light-blue: #EEF2F5;
+            --accent-blue: #1A1A2E;
+            --gold: #FFD700;
+            --silver: #E0E0E0;
+            --bronze: #CD7F32;
+            --stock-up: #00B42A;
+            --stock-down: #F53F3F;
+            --text-dark: #1A1A2E;
+            --text-light: #64748B;
+            --white: #FFFFFF;
+            --shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+            --shadow-hover: 0 5px 15px rgba(0, 0, 0, 0.12);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Microsoft YaHei', Roboto, sans-serif;
+        }
+
+        body {
+            background-color: var(--light-blue);
+            color: var(--text-dark);
+            min-height: 100vh;
+            padding: 16px;
+            line-height: 1.5;
+        }
+
+        /* 头部：保留IP选择器核心交互，调整标题样式 */
+        header {
+            background-color: var(--main-blue);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 24px;
+            color: var(--white);
+            box-shadow: var(--shadow);
+        }
+
+        .header-top {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            align-items: center;
+        }
+
+        @media (min-width: 768px) {
+            .header-top {
+                flex-direction: row;
+                justify-content: space-between;
+            }
+        }
+
+        .logo {
+            font-size: 28px; /* 标题稍微放大 */
+            font-weight: 700;
+            color: var(--gold);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .search-bar {
+            display: flex;
+            gap: 8px;
+            width: 100%;
+            max-width: 550px;
+        }
+
+        .search-bar input {
+            flex: 1;
+            padding: 10px 14px;
+            border: none;
+            border-radius: 6px;
+            font-size: 15px;
+            color: var(--text-dark);
+            outline: none;
+        }
+
+        .search-bar button {
+            background-color: var(--gold);
+            color: var(--main-blue);
+            border: none;
+            border-radius: 6px;
+            padding: 10px 20px;
+            font-weight: 600;
+            font-size: 15px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .search-bar button:hover {
+            background-color: #FFE066;
+        }
+
+        /* IP选择器：保留点击交互，强化股票学习任务关联 */
+        .ip-selector {
+            display: flex;
+            gap: 24px;
+            justify-content: center;
+            margin-top: 20px;
+            overflow-x: auto;
+            padding-bottom: 8px;
+        }
+
+        .ip-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-width: 90px;
+            cursor: pointer;
+            transition: transform 0.2s;
+            padding: 8px;
+        }
+
+        .ip-item:hover {
+            transform: scale(1.05);
+        }
+
+        .ip-avatar {
+            width: 68px;
+            height: 68px;
+            border-radius: 50%;
+            border: 3px solid transparent;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: var(--shadow);
+            object-fit: cover;
+            margin-bottom: 8px;
+        }
+
+        .ip-avatar.active {
+            border-color: var(--gold);
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.4);
+        }
+
+        .ip-name {
+            font-size: 15px;
+            text-align: center;
+            font-weight: 500;
+            color: var(--white);
+        }
+
+        .ip-tag {
+            font-size: 12px;
+            background-color: rgba(255, 255, 255, 0.2);
+            color: var(--white);
+            padding: 2px 8px;
+            border-radius: 12px;
+            margin-top: 4px;
+        }
+
+        /* 板块通用样式：统一卡片风格，保留原设计感 */
+        .section {
+            background-color: var(--white);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow);
+            border-top: 4px solid var(--main-blue);
+        }
+
+        .section-title {
+            font-size: 22px;
+            font-weight: 600;
+            color: var(--main-blue);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-title i {
+            color: var(--gold);
+        }
+
+        .section-desc {
+            font-size: 16px;
+            color: var(--text-light);
+            margin-bottom: 20px;
+        }
+
+        /* 1. 推荐股票板块（前置，严格保留一行一支+三类分类） */
+        .stock-category {
+            margin-bottom: 24px;
+        }
+
+        .category-name {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--accent-blue);
+            margin-bottom: 16px;
+            padding-left: 8px;
+            border-left: 3px solid var(--gold);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .category-name span {
+            font-size: 14px;
+            font-weight: normal;
+            color: var(--text-light);
+            background-color: var(--light-blue);
+            padding: 2px 8px;
+            border-radius: 8px;
+        }
+
+        .stock-list {
+            background-color: var(--light-blue);
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+        }
+
+        .stock-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 20px;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .stock-row:hover {
+            background-color: rgba(15, 52, 96, 0.03);
+        }
+
+        .stock-name {
+            font-size: 17px;
+            font-weight: 600;
+            flex: 1;
+            margin-right: 16px;
+            color: var(--text-dark);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .stock-code {
+            font-size: 14px;
+            color: var(--text-light);
+            margin-left: 8px;
+        }
+
+        .stock-price {
+            font-size: 17px;
+            color: var(--text-dark);
+            min-width: 80px;
+            text-align: right;
+        }
+
+        .stock-change {
+            font-size: 17px;
+            font-weight: 600;
+            min-width: 100px;
+            text-align: right;
+        }
+
+        .change-up {
+            color: var(--stock-up);
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 4px;
+        }
+
+        .change-down {
+            color: var(--stock-down);
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 4px;
+        }
+
+        .change-flat {
+            color: var(--text-light);
+        }
+
+        /* 2. IP专属股票学习任务（点击IP头像跳转） */
+        .ip-task-container {
+            position: relative;
+        }
+
+        .ip-task-panel {
+            display: none;
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+
+        /* 默认显示柯南板块 */
+        #conan-panel {
+            display: grid;
+        }
+
+        @media (min-width: 768px) {
+            .ip-task-panel {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        @media (min-width: 992px) {
+            .ip-task-panel {
+                grid-template-columns: 1fr 1fr 1fr;
+            }
+        }
+
+        .task-card {
+            background-color: var(--light-blue);
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: var(--shadow);
+            transition: transform 0.2s;
+            border-bottom: 3px solid transparent;
+        }
+
+        /* 每个IP任务卡片差异化配色 */
+        .task-card.conan-card {
+            border-bottom-color: #1E88E5;
+        }
+
+        .task-card.pikachu-card {
+            border-bottom-color: #FFCC00;
+        }
+
+        .task-card.doraemon-card {
+            border-bottom-color: #0091EA;
+        }
+
+        .task-card.chikawa-card {
+            border-bottom-color: #FF9E80;
+        }
+
+        .task-card:hover {
+            transform: translateY(-3px);
+        }
+
+        .task-card-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .task-card-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .task-card-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--main-blue);
+        }
+
+        .task-card-content {
+            margin-bottom: 16px;
+        }
+
+        .task-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px dashed rgba(0, 0, 0, 0.05);
+        }
+
+        .task-label {
+            font-size: 15px;
+            color: var(--text-light);
+        }
+
+        .task-value {
+            font-size: 15px;
+            font-weight: 500;
+        }
+
+        .task-progress {
+            width: 100%;
+            height: 8px;
+            background-color: rgba(0, 0, 0, 0.05);
+            border-radius: 4px;
+            margin-top: 8px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background-color: var(--gold);
+            border-radius: 4px;
+        }
+
+        .task-card-btn {
+            width: 100%;
+            background-color: var(--main-blue);
+            color: var(--white);
+            border: none;
+            border-radius: 6px;
+            padding: 10px 0;
+            font-weight: 600;
+            font-size: 15px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .task-card-btn:hover {
+            background-color: var(--accent-blue);
+        }
+
+        /* 3. 社区讨论区（股票主题适配） */
+        .community-search {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .community-search input {
+            flex: 1;
+            padding: 12px 16px;
+            border: 1px solid #E0E0E0;
+            border-radius: 6px;
+            font-size: 16px;
+            color: var(--text-dark);
+            outline: none;
+        }
+
+        .community-search button {
+            background-color: var(--main-blue);
+            color: var(--white);
+            border: none;
+            border-radius: 6px;
+            padding: 12px 24px;
+            font-weight: 600;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .community-search button:hover {
+            background-color: var(--accent-blue);
+        }
+
+        .community-tabs {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #E0E0E0;
+            padding-bottom: 8px;
+        }
+
+        .community-tab {
+            font-size: 17px;
+            font-weight: 600;
+            color: var(--text-light);
+            cursor: pointer;
+            padding: 4px 8px;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .community-tab.active {
+            color: var(--main-blue);
+            border-bottom-color: var(--gold);
+        }
+
+        .community-content {
+            display: none;
+        }
+
+        .community-content.active {
+            display: block;
+        }
+
+        .topic-list {
+            list-style: none;
+        }
+
+        .topic-item {
+            background-color: var(--light-blue);
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 16px;
+            cursor: pointer;
+            transition: box-shadow 0.2s;
+        }
+
+        .topic-item:hover {
+            box-shadow: var(--shadow-hover);
+        }
+
+        .topic-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+
+        .topic-title {
+            font-size: 17px;
+            font-weight: 600;
+            color: var(--main-blue);
+        }
+
+        .topic-time {
+            font-size: 14px;
+            color: var(--text-light);
+        }
+
+        .topic-content {
+            font-size: 15px;
+            color: var(--text-dark);
+            margin-bottom: 12px;
+            line-height: 1.6;
+        }
+
+        .topic-footer {
+            display: flex;
+            gap: 24px;
+            font-size: 14px;
+            color: var(--text-light);
+        }
+
+        .topic-footer span {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .topic-reply {
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px dashed rgba(0, 0, 0, 0.05);
+        }
+
+        .reply-input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #E0E0E0;
+            border-radius: 6px;
+            font-size: 15px;
+            margin-bottom: 8px;
+            outline: none;
+        }
+
+        .reply-btn {
+            background-color: var(--gold);
+            color: var(--main-blue);
+            border: none;
+            border-radius: 6px;
+            padding: 8px 16px;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .reply-btn:hover {
+            background-color: #FFE066;
+        }
+
+        /* 4. 理财宠物养成（股票主题适配） */
+        .pet-container {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 24px;
+        }
+
+        @media (min-width: 768px) {
+            .pet-container {
+                grid-template-columns: 1fr 2fr;
+            }
+        }
+
+        .pet-profile {
+            background-color: var(--light-blue);
+            border-radius: 10px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+
+        .pet-avatar {
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid var(--gold);
+            margin-bottom: 16px;
+            background-color: var(--white);
+            padding: 10px;
+        }
+
+        .pet-name {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--main-blue);
+            margin-bottom: 4px;
+        }
+
+        .pet-level {
+            color: var(--text-light);
+            font-size: 14px;
+            margin-bottom: 16px;
+        }
+
+        .pet-stats {
+            width: 100%;
+            margin-bottom: 20px;
+        }
+
+        .pet-stat {
+            margin-bottom: 12px;
+        }
+
+        .pet-stat-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 6px;
+            font-size: 14px;
+        }
+
+        .stat-name {
+            font-weight: 500;
+        }
+
+        .stat-value {
+            color: var(--main-blue);
+            font-weight: 600;
+        }
+
+        .stat-bar {
+            height: 8px;
+            background-color: rgba(0, 0, 0, 0.05);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .stat-fill {
+            height: 100%;
+            background-color: var(--gold);
+            border-radius: 4px;
+        }
+
+        .pet-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: auto;
+        }
+
+        .pet-action {
+            background-color: var(--white);
+            border: 1px solid #E0E0E0;
+            border-radius: 8px;
+            padding: 8px 16px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .pet-action:hover {
+            background-color: var(--main-blue);
+            color: var(--white);
+            border-color: var(--main-blue);
+        }
+
+        .pet-training {
+            background-color: var(--light-blue);
+            border-radius: 10px;
+            padding: 20px;
+        }
+
+        .training-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: var(--main-blue);
+        }
+
+        .training-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .training-item {
+            background-color: var(--white);
+            border: 1px solid #E0E0E0;
+            border-radius: 8px;
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .training-item:hover {
+            border-color: var(--gold);
+            transform: translateY(-2px);
+        }
+
+        .training-icon {
+            font-size: 20px;
+        }
+
+        .training-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .training-name {
+            font-weight: 500;
+        }
+
+        .training-effect {
+            font-size: 12px;
+            color: var(--text-light);
+        }
+
+        /* 5. 金融工具库（股票主题适配） */
+        .tools-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .tool-item {
+            background-color: var(--light-blue);
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .tool-item:hover {
+            background-color: rgba(15, 52, 96, 0.08);
+            transform: translateY(-3px);
+        }
+
+        .tool-icon {
+            width: 60px;
+            height: 60px;
+            background-color: var(--white);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 16px;
+            font-size: 24px;
+            color: var(--main-blue);
+            box-shadow: var(--shadow);
+        }
+
+        .tool-name {
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .tool-desc {
+            font-size: 13px;
+            color: var(--text-light);
+        }
+
+        /* 6. 任务中心（股票主题适配） */
+        .task-filters {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 20px;
+            overflow-x: auto;
+            padding-bottom: 8px;
+        }
+
+        .task-filter {
+            padding: 6px 16px;
+            background-color: var(--light-blue);
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 500;
+            white-space: nowrap;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .task-filter.active {
+            background-color: var(--main-blue);
+            color: var(--white);
+        }
+
+        .task-list {
+            display: grid;
+            gap: 16px;
+        }
+
+        .task-item {
+            border: 1px solid #E0E0E0;
+            border-radius: 10px;
+            padding: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.2s;
+        }
+
+        .task-item:hover {
+            border-color: var(--main-blue);
+        }
+
+        .task-info {
+            flex: 1;
+        }
+
+        .task-title {
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+
+        .task-desc {
+            font-size: 13px;
+            color: var(--text-light);
+        }
+
+        .task-reward {
+            background-color: rgba(255, 215, 0, 0.1);
+            color: var(--main-blue);
+            padding: 4px 12px;
+            border-radius: 16px;
+            font-size: 13px;
+            font-weight: 600;
+            margin-right: 16px;
+        }
+
+        .task-action {
+            padding: 6px 16px;
+            background-color: var(--main-blue);
+            color: var(--white);
+            border: none;
+            border-radius: 6px;
+            font-weight: 500;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .task-action:hover {
+            background-color: var(--accent-blue);
+        }
+
+        .task-action.completed {
+            background-color: var(--stock-up);
+        }
+
+        /* 新增：7. 积分排行榜模块 */
+        .ranking-tabs {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #E0E0E0;
+            padding-bottom: 8px;
+            overflow-x: auto;
+        }
+
+        .ranking-tab {
+            font-size: 17px;
+            font-weight: 600;
+            color: var(--text-light);
+            cursor: pointer;
+            padding: 4px 8px;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .ranking-tab.active {
+            color: var(--main-blue);
+            border-bottom-color: var(--gold);
+        }
+
+        .ranking-content {
+            display: none;
+        }
+
+        .ranking-content.active {
+            display: block;
+        }
+
+        .ranking-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .ranking-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 16px;
+            background-color: var(--light-blue);
+            border-radius: 8px;
+            transition: transform 0.2s;
+        }
+
+        .ranking-item:hover {
+            transform: translateX(5px);
+        }
+
+        .ranking-rank {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: var(--main-blue);
+            margin-right: 16px;
+            flex-shrink: 0;
+        }
+
+        .rank-1 {
+            background-color: var(--gold);
+            color: var(--main-blue);
+        }
+
+        .rank-2 {
+            background-color: var(--silver);
+            color: var(--main-blue);
+        }
+
+        .rank-3 {
+            background-color: var(--bronze);
+            color: white;
+        }
+
+        .ranking-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-right: 16px;
+            border: 2px solid transparent;
+        }
+
+        .ranking-1 .ranking-avatar {
+            border-color: var(--gold);
+        }
+
+        .ranking-2 .ranking-avatar {
+            border-color: var(--silver);
+        }
+
+        .ranking-3 .ranking-avatar {
+            border-color: var(--bronze);
+        }
+
+        .ranking-info {
+            flex: 1;
+        }
+
+        .ranking-name {
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .ranking-desc {
+            font-size: 13px;
+            color: var(--text-light);
+        }
+
+        .ranking-score {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--main-blue);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .ranking-score i {
+            color: var(--gold);
+        }
+
+        .self-ranking {
+            border: 2px solid var(--gold);
+            background-color: rgba(255, 215, 0, 0.05);
+        }
+
+        /* 页脚 */
+        footer {
+            background-color: var(--main-blue);
+            color: var(--white);
+            padding: 30px 20px;
+            border-radius: 12px;
+            margin-top: 30px;
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            text-align: center;
+            font-size: 14px;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 16px;
+        }
+
+        .footer-links a {
+            color: var(--white);
+            text-decoration: none;
+        }
+
+        .footer-links a:hover {
+            color: var(--gold);
+        }
+
+        /* 弹窗提示 */
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: var(--main-blue);
+            color: var(--white);
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 15px;
+            box-shadow: var(--shadow-hover);
+            z-index: 100;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <!-- 头部：包含IP选择器，标题修改为无符号且放大 -->
+    <header>
+        <div class="header-top">
+            <div class="logo">
+                FinZoo 金融乐园 <!-- 删掉了前面的符号 -->
+            </div>
+            <div class="search-bar">
+                <input type="text" placeholder="搜索股票代码或名称...">
+                <button>搜索</button>
+            </div>
+        </div>
+        
+        <!-- IP选择器：点击跳转对应学习任务 -->
+        <div class="ip-selector">
+            <div class="ip-item" onclick="switchIP('conan')">
+                <img src="https://picsum.photos/seed/conan/200/200" alt="柯南" class="ip-avatar active" id="conan-avatar">
+                <div class="ip-name">柯南</div>
+                <div class="ip-tag">财报侦探</div>
+            </div>
+            <div class="ip-item" onclick="switchIP('pikachu')">
+                <img src="https://picsum.photos/seed/pikachu/200/200" alt="皮卡丘" class="ip-avatar" id="pikachu-avatar">
+                <div class="ip-name">皮卡丘</div>
+                <div class="ip-tag">波动分析</div>
+            </div>
+            <div class="ip-item" onclick="switchIP('doraemon')">
+                <img src="https://picsum.photos/seed/doraemon/200/200" alt="哆啦A梦" class="ip-avatar" id="doraemon-avatar">
+                <div class="ip-name">哆啦A梦</div>
+                <div class="ip-tag">长线投资</div>
+            </div>
+            <div class="ip-item" onclick="switchIP('chikawa')">
+                <img src="https://picsum.photos/seed/chikawa/200/200" alt="Chikawa" class="ip-avatar" id="chikawa-avatar">
+                <div class="ip-name">Chikawa</div>
+                <div class="ip-tag">风险控制</div>
+            </div>
+        </div>
+    </header>
+
+    <!-- 1. 推荐股票板块（前置，一行一支+三类分类） -->
+    <section class="section">
+        <h2 class="section-title">📊 推荐股票</h2>
+        <p class="section-desc">根据市场行情和学习进度，为你推荐适合研究的股票</p>
+        
+        <!-- 分类1：成长型股票 -->
+        <div class="stock-category">
+            <div class="category-name">
+                成长型股票 <span>适合长期投资研究</span>
+            </div>
+            <div class="stock-list">
+                <div class="stock-row">
+                    <div class="stock-name">
+                        <span>科技创新</span>
+                        <span class="stock-code">(600123)</span>
+                    </div>
+                    <div class="stock-price">¥56.80</div>
+                    <div class="stock-change change-up">
+                        <span>↑</span> 3.25%
+                    </div>
+                </div>
+                <div class="stock-row">
+                    <div class="stock-name">
+                        <span>绿色能源</span>
+                        <span class="stock-code">(002456)</span>
+                    </div>
+                    <div class="stock-price">¥32.45</div>
+                    <div class="stock-change change-up">
+                        <span>↑</span> 1.89%
+                    </div>
+                </div>
+                <div class="stock-row">
+                    <div class="stock-name">
+                        <span>医疗健康</span>
+                        <span class="stock-code">(300789)</span>
+                    </div>
+                    <div class="stock-price">¥78.20</div>
+                    <div class="stock-change change-down">
+                        <span>↓</span> 0.56%
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 分类2：价值型股票 -->
+        <div class="stock-category">
+            <div class="category-name">
+                价值型股票 <span>适合基本面分析练习</span>
+            </div>
+            <div class="stock-list">
+                <div class="stock-row">
+                    <div class="stock-name">
+                        <span>蓝筹银行</span>
+                        <span class="stock-code">(601234)</span>
+                    </div>
+                    <div class="stock-price">¥12.68</div>
+                    <div class="stock-change change-flat">0.00%</div>
+                </div>
+                <div class="stock-row">
+                    <div class="stock-name">
+                        <span>消费龙头</span>
+                        <span class="stock-code">(000567)</span>
+                    </div>
+                    <div class="stock-price">¥65.32</div>
+                    <div class="stock-change change-up">
+                        <span>↑</span> 2.15%
+                    </div>
+                </div>
+                <div class="stock-row">
+                    <div class="stock-name">
+                        <span>基建工程</span>
+                        <span class="stock-code">(603890)</span>
+                    </div>
+                    <div class="stock-price">¥8.95</div>
+                    <div class="stock-change change-down">
+                        <span>↓</span> 1.23%
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 分类3：波动型股票 -->
+        <div class="stock-category">
+            <div class="category-name">
+                波动型股票 <span>适合技术分析练习</span>
+            </div>
+            <div class="stock-list">
+                <div class="stock-row">
+                    <div class="stock-name">
+                        <span>新能源材料</span>
+                        <span class="stock-code">(300234)</span>
+                    </div>
+                    <div class="stock-price">¥42.76</div>
+                    <div class="stock-change change-up">
+                        <span>↑</span> 5.32%
+                    </div>
+                </div>
+                <div class="stock-row">
+                    <div class="stock-name">
+                        <span>半导体</span>
+                        <span class="stock-code">(600567)</span>
+                    </div>
+                    <div class="stock-price">¥89.45</div>
+                    <div class="stock-change change-down">
+                        <span>↓</span> 3.87%
+                    </div>
+                </div>
+                <div class="stock-row">
+                    <div class="stock-name">
+                        <span>数字经济</span>
+                        <span class="stock-code">(002890)</span>
+                    </div>
+                    <div class="stock-price">¥36.21</div>
+                    <div class="stock-change change-up">
+                        <span>↑</span> 4.12%
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 2. IP专属股票学习任务（点击IP头像跳转） -->
+    <section class="section">
+        <h2 class="section-title">🎯 IP专属学习任务</h2>
+        <p class="section-desc">跟随喜欢的IP完成股票学习任务，解锁专属技能</p>
+        
+        <div class="ip-task-container">
+            <!-- 柯南的学习任务 -->
+            <div class="ip-task-panel" id="conan-panel">
+                <div class="task-card conan-card">
+                    <div class="task-card-header">
+                        <img src="https://picsum.photos/seed/conan/200/200" alt="柯南" class="task-card-avatar">
+                        <div class="task-card-title">财报侦探入门</div>
+                    </div>
+                    <div class="task-card-content">
+                        <div class="task-item">
+                            <div class="task-label">任务目标</div>
+                            <div class="task-value">分析3份利润表</div>
+                        </div>
+                        <div class="task-item">
+                            <div class="task-label">难度</div>
+                            <div class="task-value">★★☆☆☆</div>
+                        </div>
+                        <div class="task-item">
+                            <div class="task-label">奖励</div>
+                            <div class="task-value">200积分</div>
+                        </div>
+                        <div class="task-item">
+                            <div class="task-label">进度</div>
+                            <div class="task-value">1/3</div>
+                        </div>
+                        <div class="task-progress">
+                            <div class="progress-bar" style="width: 33%;"></div>
+                        </div>
+                    </div>
+                    <button class="task-card-btn">继续任务</button>
+                </div>
+                
+                <div class="task-card conan-card">
+                    <div class="task-card-header">
+                        <img src="https://picsum.photos/seed/conan/200/200" alt="柯南" class="task-card-avatar">
+                        <div class="task-card-title">资产负债表解密</div>
+                    </div>
+                    <div class="task-card-content">
+                        <div class="task-item">
+                            <div class="task-label">任务目标</div>
+                            <div class="task-value">识别3个财务风险点</div>
+                        </div>
+                        <div class="task-item">
+                            <div class="task-label">难度</div>
+                            <div class="task-value">★★★☆☆</div>
+                        </div>
+                        <div class="task-item">
+                            <div class="task-label">奖励</div>
+                            <div class="task-value">300积分</div>
+                        </div>
+                        <div class="task-item">
+                            <div class="task-label">进度</div>
+                            <div class="task-value">0/3</div>
+                        </div>
+                        <div class="task-progress">
+                            <div class="progress-bar" style="width: 0%;"></div>
+                        </div>
+                    </div>
+                    <button class="task-card-btn">开始任务</button>
+                </div>
+                
+                <div class="task-card conan-card">
+                    <div class="task-card-header">
+                        <img src="https://picsum.photos/seed/conan/200/200" alt="柯南" class="task-card-avatar">
+                        <div class="task-card-title">现金流侦探挑战</div>
+                    </div>
+                    <div class="task-card-content">
+                        <div class="task-item">
+                            <div class="task-label">任务目标</div>
+                            <div class="task-value">完成财务舞弊识别测验</div>
+                        </div>
+                        <div class="task-item">
+                            <div class="task-label">难度</div>
+                            <div class="task-value">★★★★☆</div>
+                        </div>
+                        <div class="task-item">
+                            <div class="task-label">奖励</div>
+                            <div class="task-value">500积分+专属徽章</div>
+                        </div>
+                        <div class="task-item">
+                            <div class="task-label">进度</div>
+                            <div class="task-value">未解锁</div>
+                        </div>
+                        <div class="task-progress">
+                            <div class="progress-bar" style="width: 0%; background-color: #ccc;"></div>
+                        </div>
+                    </div>
+                    <button class="task-card-btn" style="background-color: #ccc; cursor: not-allowed;">完成前序任务解锁</button>
+                </div>
+            </div>
+            
+            <!-- 皮卡丘的学习任务 -->
+            <div class="ip-task-panel" id="pikachu-panel">
+                <div class="task-card pikachu-card">
+                    <div class="task-card-header">
+                        <img src="https://picsum.photos/seed/pikachu/200/200" alt="皮卡丘" class="task-card-avatar">
+                        <div class="task-card-title">K线图基础</div>
+                    </div>
+                    <div class="task-card-content">
+                        <div class="task-item">
+                            <div class="task-label">任务目标</div>
+                            <div class="task-value">识别5种K线形态</div>
+                        </div>
+                        <div class="task-item">
+                            <div class="task-label">难度</div>
+                            <div class="task-value">★★☆☆☆</div>
+                        </div>
+                        <div class="task-item">
+                            <div class="task-label">奖励</div>
+                            <div class="task-value">150积分</div>
+                        </div>
+                        <div class="task-item">
+                            <div class="task-label">进度</div>
+                            <div class="task-value">0/5</div>
+                        </div>
+                        <div class="task-progress">
+                            <div class="progress-bar" style="width: 0%;"></div>
+                        </div>
+                    </div>
+                    <button class="task-card-btn">开始任务</button>
+                </div>
+                
+                <div class="task-card pikachu-card">
+                    <div class="task-card-header">
+                        <img src="https://picsum.photos/seed/pikachu/200/200" alt="皮卡丘" class="task-card-avatar">
+                        <div class="task-card-title">移动平均线应用</div>
+                    </div>
+                    <div class="task-card-content">
+                        <div class="task-item">
+                            <div class="task-label">任务目标</div>
+                            <div class="task-value">分析3只股票趋势</div>
+                        </div>
+                        <div class="task-item">
+                            <div class="task-label">难度</div>
+                            <div class="task-value">★★★☆☆</div>
+                        </div>
+                        <div class="task-item">
+                            <div class="task-label">奖励</div>
+                            <div class="task-value">250积分</div>
+                        </div>
+                        <div class="task-item">
+                            <div class="task-label">进度</div>
+                            <div class="task-value">未解锁</div>
+                        </div>
+                        <div class="task-progress">
+                            <div class="progress-bar" style="width: 0%; background-color: #ccc;"></div>
+                        </div>
+                    </div>
+                    <button class="task-card-btn" style="background-color: #ccc; cursor: not-allowed;">完成前序任务解锁</button>
+                </div>
+            </div>
+            
+            <!-- 哆啦A梦的学习任务 -->
+            <div class="ip-task-panel" id="doraemon-panel">
+                <div class="task-card doraemon-card">
+                    <div class="task-card-header">
+                        <img src="https://picsum.photos/seed/doraemon/200/200" alt="哆啦A梦" class="task-card-avatar">
+                        <div class="task-card-title">行业分析入门</div>
+                    </div>
+                    <div class="task-card-content">
+                        <div class="task-item">
+                            <div class="task-label">任务目标</div>
+                            <div class="task-value">完成新能源行业研究</div>
+                        </div>
+                        <div class="task-item">
+                            <div class="task-label">难度</div>
+                            <div class="task-value">★★★☆☆</div>
+                        </div>
+                        <div class="task-item">
+                            <div class="task-label">奖励</div>
+                            <div class="task-value">200积分</div>
+                        </div>
+                        <div class="task-item">
+                            <div class="task-label">进度</div>
+                            <div class="task-value">0/1</div>
+                        </div>
+                        <div class="task-progress">
+                            <div class="progress-bar" style="width: 0%;"></div>
+                        </div>
+                    </div>
+                    <button class="task-card-btn">开始任务</button>
+                </div>
+            </div>
+            
+            <!-- Chikawa的学习任务 -->
+            <div class="ip-task-panel" id="chikawa-panel">
+                <div class="task-card chikawa-card">
+                    <div class="task-card-header">
+                        <img src="https://picsum.photos/seed/chikawa/200/200" alt="Chikawa" class="task-card-avatar">
+                        <div class="task-card-title">风险控制基础</div>
+                    </div>
+                    <div class="task-card-content">
+                        <div class="task-item">
+                            <div class="task-label">任务目标</div>
+                            <div class="task-value">学习止损止盈策略</div>
+                        </div>
+                        <div class="task-item">
+                            <div class="task-label">难度</div>
+                            <div class="task-value">★★☆☆☆</div>
+                        </div>
+                        <div class="task-item">
+                            <div class="task-label">奖励</div>
+                            <div class="task-value">150积分</div>
+                        </div>
+                        <div class="task-item">
+                            <div class="task-label">进度</div>
+                            <div class="task-value">0/1</div>
+                        </div>
+                        <div class="task-progress">
+                            <div class="progress-bar" style="width: 0%;"></div>
+                        </div>
+                    </div>
+                    <button class="task-card-btn">开始任务</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 3. 社区讨论区（股票主题适配） -->
+    <section class="section">
+        <h2 class="section-title">💬 股票社区讨论</h2>
+        <p class="section-desc">和股友交流分析心得，分享投资技巧</p>
+        
+        <div class="community-search">
+            <input type="text" placeholder="搜索讨论话题...">
+            <button>搜索</button>
+        </div>
+        
+        <div class="community-tabs">
+            <div class="community-tab active" onclick="switchCommunity('hot')">热门讨论</div>
+            <div class="community-tab" onclick="switchCommunity('news')">股市动态</div>
+            <div class="community-tab" onclick="switchCommunity('analysis')">分析技巧</div>
+            <div class="community-tab" onclick="switchCommunity('beginner')">新手问答</div>
+        </div>
+        
+        <!-- 热门讨论 -->
+        <div class="community-content active" id="hot-content">
+            <ul class="topic-list">
+                <li class="topic-item">
+                    <div class="topic-header">
+                        <div class="topic-title">科技创新（600123）的财报隐藏着哪些信号？</div>
+                        <div class="topic-time">2小时前</div>
+                    </div>
+                    <div class="topic-content">
+                        今天研究了科技创新的年报，发现营收增长但净利润率下降了1.2%，应收账款周转天数增加了5天。结合柯南的财务侦探课程，这可能是一个需要关注的风险点...
+                    </div>
+                    <div class="topic-footer">
+                        <span>👤 财报分析师</span>
+                        <span>👁️ 356</span>
+                        <span>💬 24</span>
+                        <span>❤️ 58</span>
+                    </div>
+                    <div class="topic-reply">
+                        <input type="text" class="reply-input" placeholder="分享你的看法...">
+                        <button class="reply-btn">回复</button>
+                    </div>
+                </li>
+                
+                <li class="topic-item">
+                    <div class="topic-header">
+                        <div class="topic-title">用皮卡丘教的均线法分析半导体（600567）走势</div>
+                        <div class="topic-time">昨天 15:30</div>
+                    </div>
+                    <div class="topic-content">
+                        按照皮卡丘课程里讲的5日和20日均线交叉策略，半导体这只票在3月10日出现了金叉信号，到现在涨幅已经有15%了！附上我的分析图...
+                    </div>
+                    <div class="topic-footer">
+                        <span>👤 技术派小散</span>
+                        <span>👁️ 782</span>
+                        <span>💬 46</span>
+                        <span>❤️ 124</span>
+                    </div>
+                    <div class="topic-reply">
+                        <input type="text" class="reply-input" placeholder="分享你的看法...">
+                        <button class="reply-btn">回复</button>
+                    </div>
+                </li>
+            </ul>
+        </div>
+        
+        <!-- 其他社区内容（默认隐藏） -->
+        <div class="community-content" id="news-content">
+            <ul class="topic-list">
+                <li class="topic-item">
+                    <div class="topic-header">
+                        <div class="topic-title">央行降准对股市的影响分析</div>
+                        <div class="topic-time">3小时前</div>
+                    </div>
+                    <div class="topic-content">
+                        最新消息，央行决定下调存款准备金率0.25个百分点，释放长期资金约5000亿元。这对银行股和基建股可能是利好...
+                    </div>
+                    <div class="topic-footer">
+                        <span>👤 宏观观察员</span>
+                        <span>👁️ 521</span>
+                        <span>💬 32</span>
+                        <span>❤️ 76</span>
+                    </div>
+                    <div class="topic-reply">
+                        <input type="text" class="reply-input" placeholder="分享你的看法...">
+                        <button class="reply-btn">回复</button>
+                    </div>
+                </li>
+            </ul>
+        </div>
+        
+        <div class="community-content" id="analysis-content">
+            <!-- 分析技巧内容 -->
+        </div>
+        
+        <div class="community-content" id="beginner-content">
+            <!-- 新手问答内容 -->
+        </div>
+    </section>
+
+    <!-- 4. 理财宠物养成（股票主题适配） -->
+    <section class="section">
+        <h2 class="section-title">🐾 股票小助手养成</h2>
+        <p class="section-desc">喂养你的股票助手，提升分析能力，陪你一起学习股票知识</p>
+        
+        <div class="pet-container">
+            <div class="pet-profile">
+                <img src="https://picsum.photos/seed/stockpet/200/200" alt="股票小助手" class="pet-avatar">
+                <div class="pet-name">股小探</div>
+                <div class="pet-level">Lv.4 初级分析师</div>
+                
+                <div class="pet-stats">
+                    <div class="pet-stat">
+                        <div class="pet-stat-label">
+                            <span class="stat-name">分析能力</span>
+                            <span class="stat-value">65/100</span>
+                        </div>
+                        <div class="stat-bar">
+                            <div class="stat-fill" style="width: 65%;"></div>
+                        </div>
+                    </div>
+                    <div class="pet-stat">
+                        <div class="pet-stat-label">
+                            <span class="stat-name">市场敏感度</span>
+                            <span class="stat-value">48/100</span>
+                        </div>
+                        <div class="stat-bar">
+                            <div class="stat-fill" style="width: 48%;"></div>
+                        </div>
+                    </div>
+                    <div class="pet-stat">
+                        <div class="pet-stat-label">
+                            <span class="stat-name">风险识别</span>
+                            <span class="stat-value">52/100</span>
+                        </div>
+                        <div class="stat-bar">
+                            <div class="stat-fill" style="width: 52%;"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="pet-actions">
+                    <button class="pet-action" onclick="feedPet()">
+                        <span>🍖</span> 喂食
+                    </button>
+                    <button class="pet-action" onclick="trainPet()">
+                        <span>📚</span> 训练
+                    </button>
+                </div>
+            </div>
+            
+            <div class="pet-training">
+                <div class="training-title">今日训练计划（提升宠物能力）</div>
+                <div class="training-list">
+                    <div class="training-item" onclick="startTraining('kline')">
+                        <span class="training-icon">📈</span>
+                        <div class="training-info">
+                            <div class="training-name">K线图识别训练</div>
+                            <div class="training-effect">+8 分析能力</div>
+                        </div>
+                    </div>
+                    <div class="training-item" onclick="startTraining('finance')">
+                        <span class="training-icon">📊</span>
+                        <div class="training-info">
+                            <div class="training-name">财报解读练习</div>
+                            <div class="training-effect">+10 分析能力</div>
+                        </div>
+                    </div>
+                    <div class="training-item" onclick="startTraining('market')">
+                        <span class="training-icon">📰</span>
+                        <div class="training-info">
+                            <div class="training-name">市场新闻分析</div>
+                            <div class="training-effect">+6 市场敏感度</div>
+                        </div>
+                    </div>
+                    <div class="training-item" onclick="startTraining('risk')">
+                        <span class="training-icon">⚠️</span>
+                        <div class="training-info">
+                            <div class="training-name">风险点排查</div>
+                            <div class="training-effect">+7 风险识别</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 5. 金融工具库（股票主题适配） -->
+    <section class="section">
+        <h2 class="section-title">🔧 股票分析工具库</h2>
+        <p class="section-desc">实用股票分析工具，帮你更好地研究股票</p>
+        
+        <div class="tools-grid">
+            <div class="tool-item" onclick="showToast('市盈率计算器已打开')">
+                <div class="tool-icon">📊</div>
+                <div class="tool-name">市盈率计算器</div>
+                <div class="tool-desc">计算股票市盈率及估值水平</div>
+            </div>
+            
+            <div class="tool-item" onclick="showToast('收益计算器已打开')">
+                <div class="tool-icon">💰</div>
+                <div class="tool-name">收益计算器</div>
+                <div class="tool-desc">计算持仓收益及目标价</div>
+            </div>
+            
+            <div class="tool-item" onclick="showToast('止损止盈计算器已打开')">
+                <div class="tool-icon">🛡️</div>
+                <div class="tool-name">止损止盈计算器</div>
+                <div class="tool-desc">科学设置止损止盈点位</div>
+            </div>
+            
+            <div class="tool-item" onclick="showToast('仓位管理工具已打开')">
+                <div class="tool-icon">⚖️</div>
+                <div class="tool-name">仓位管理工具</div>
+                <div class="tool-desc">计算合理持仓比例</div>
+            </div>
+            
+            <div class="tool-item" onclick="showToast('财务比率分析工具已打开')">
+                <div class="tool-icon">📈</div>
+                <div class="tool-name">财务比率分析</div>
+                <div class="tool-desc">自动计算关键财务指标</div>
+            </div>
+            
+            <div class="tool-item" onclick="showToast('行业对比工具已打开')">
+                <div class="tool-icon">📊</div>
+                <div class="tool-name">行业对比工具</div>
+                <div class="tool-desc">对比同行业公司数据</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 6. 任务中心（股票主题适配） -->
+    <section class="section">
+        <h2 class="section-title">🎯 股票学习任务中心</h2>
+        <p class="section-desc">完成股票学习任务，获取积分奖励，提升分析能力</p>
+        
+        <div class="task-filters">
+            <div class="task-filter active">全部任务</div>
+            <div class="task-filter">日常任务</div>
+            <div class="task-filter">学习任务</div>
+            <div class="task-filter">挑战任务</div>
+            <div class="task-filter">已完成</div>
+        </div>
+        
+        <div class="task-list">
+            <div class="task-item">
+                <div class="task-info">
+                    <div class="task-title">分析1只股票的K线图</div>
+                    <div class="task-desc">使用皮卡丘课程中的方法，分析半导体（600567）的30天K线</div>
+                </div>
+                <div class="task-reward">+150积分</div>
+                <button class="task-action" onclick="completeTask(this)">去完成</button>
+            </div>
+            
+            <div class="task-item">
+                <div class="task-info">
+                    <div class="task-title">阅读1份上市公司年报</div>
+                    <div class="task-desc">阅读科技创新（600123）2023年年报，提取3个关键数据</div>
+                </div>
+                <div class="task-reward">+200积分</div>
+                <button class="task-action" onclick="completeTask(this)">去完成</button>
+            </div>
+            
+            <div class="task-item">
+                <div class="task-info">
+                    <div class="task-title">在社区发布分析笔记</div>
+                    <div class="task-desc">分享你的股票分析心得，获得5个以上点赞</div>
+                </div>
+                <div class="task-reward">+250积分</div>
+                <button class="task-action" onclick="completeTask(this)">去发布</button>
+            </div>
+            
+            <div class="task-item">
+                <div class="task-info">
+                    <div class="task-title">完成3个IP学习任务</div>
+                    <div class="task-desc">累计完成3个IP专属学习任务，提升综合分析能力</div>
+                </div>
+                <div class="task-reward">+500积分+专属皮肤</div>
+                <button class="task-action" style="background-color: #ccc; cursor: not-allowed;">进行中(1/3)</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- 新增：7. 积分排行榜模块 -->
+    <section class="section">
+        <h2 class="section-title">🏆 积分排行榜</h2>
+        <p class="section-desc">查看你的积分排名，与全球用户一起比拼学习成果</p>
+        
+        <div class="ranking-tabs">
+            <div class="ranking-tab active" onclick="switchRanking('global')">全球排名</div>
+            <div class="ranking-tab" onclick="switchRanking('friends')">好友排名</div>
+            <div class="ranking-tab" onclick="switchRanking('school')">学校排名</div>
+        </div>
+        
+        <!-- 全球排名 -->
+        <div class="ranking-content active" id="global-ranking">
+            <div class="ranking-list">
+                <div class="ranking-item ranking-1">
+                    <div class="ranking-rank rank-1">1</div>
+                    <img src="https://picsum.photos/seed/user1/200/200" alt="用户头像" class="ranking-avatar">
+                    <div class="ranking-info">
+                        <div class="ranking-name">股市小达人</div>
+                        <div class="ranking-desc">完成32个学习任务 · 分析大师</div>
+                    </div>
+                    <div class="ranking-score">
+                        <i>🏆</i> 25,680
+                    </div>
+                </div>
+                
+                <div class="ranking-item ranking-2">
+                    <div class="ranking-rank rank-2">2</div>
+                    <img src="https://picsum.photos/seed/user2/200/200" alt="用户头像" class="ranking-avatar">
+                    <div class="ranking-info">
+                        <div class="ranking-name">财报分析师</div>
+                        <div class="ranking-desc">完成28个学习任务 · 财务专家</div>
+                    </div>
+                    <div class="ranking-score">
+                        <i>🏆</i> 23,450
+                    </div>
+                </div>
+                
+                <div class="ranking-item ranking-3">
+                    <div class="ranking-rank rank-3">3</div>
+                    <img src="https://picsum.photos/seed/user3/200/200" alt="用户头像" class="ranking-avatar">
+                    <div class="ranking-info">
+                        <div class="ranking-name">K线狙击手</div>
+                        <div class="ranking-desc">完成25个学习任务 · 技术派高手</div>
+                    </div>
+                    <div class="ranking-score">
+                        <i>🏆</i> 21,890
+                    </div>
+                </div>
+                
+                <div class="ranking-item">
+                    <div class="ranking-rank">4</div>
+                    <img src="https://picsum.photos/seed/user4/200/200" alt="用户头像" class="ranking-avatar">
+                    <div class="ranking-info">
+                        <div class="ranking-name">价值投资者</div>
+                        <div class="ranking-desc">完成22个学习任务 · 长线专家</div>
+                    </div>
+                    <div class="ranking-score">
+                        <i>🏆</i> 19,750
+                    </div>
+                </div>
+                
+                <div class="ranking-item self-ranking">
+                    <div class="ranking-rank">18</div>
+                    <img src="https://picsum.photos/seed/currentuser/200/200" alt="你的头像" class="ranking-avatar">
+                    <div class="ranking-info">
+                        <div class="ranking-name">我（股票新手）</div>
+                        <div class="ranking-desc">完成8个学习任务 · 初级分析师</div>
+                    </div>
+                    <div class="ranking-score">
+                        <i>🏆</i> 8,640
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 好友排名 -->
+        <div class="ranking-content" id="friends-ranking">
+            <div class="ranking-list">
+                <div class="ranking-item">
+                    <div class="ranking-rank rank-1">1</div>
+                    <img src="https://picsum.photos/seed/friend1/200/200" alt="好友头像" class="ranking-avatar">
+                    <div class="ranking-info">
+                        <div class="ranking-name">小明同学</div>
+                        <div class="ranking-desc">完成15个学习任务 · 进阶学习者</div>
+                    </div>
+                    <div class="ranking-score">
+                        <i>🏆</i> 12,350
+                    </div>
+                </div>
+                
+                <div class="ranking-item self-ranking">
+                    <div class="ranking-rank rank-2">2</div>
+                    <img src="https://picsum.photos/seed/currentuser/200/200" alt="你的头像" class="ranking-avatar">
+                    <div class="ranking-info">
+                        <div class="ranking-name">我（股票新手）</div>
+                        <div class="ranking-desc">完成8个学习任务 · 初级分析师</div>
+                    </div>
+                    <div class="ranking-score">
+                        <i>🏆</i> 8,640
+                    </div>
+                </div>
+                
+                <div class="ranking-item">
+                    <div class="ranking-rank rank-3">3</div>
+                    <img src="https://picsum.photos/seed/friend2/200/200" alt="好友头像" class="ranking-avatar">
+                    <div class="ranking-info">
+                        <div class="ranking-name">小红财经</div>
+                        <div class="ranking-desc">完成6个学习任务 · 入门学习者</div>
+                    </div>
+                    <div class="ranking-score">
+                        <i>🏆</i> 6,280
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 学校排名 -->
+        <div class="ranking-content" id="school-ranking">
+            <div class="ranking-list">
+                <div class="ranking-item">
+                    <div class="ranking-rank rank-1">1</div>
+                    <img src="https://picsum.photos/seed/school1/200/200" alt="校友头像" class="ranking-avatar">
+                    <div class="ranking-info">
+                        <div class="ranking-name">大学金融哥</div>
+                        <div class="ranking-desc">完成24个学习任务 · 校园投资达人</div>
+                    </div>
+                    <div class="ranking-score">
+                        <i>🏆</i> 20,150
+                    </div>
+                </div>
+                
+                <div class="ranking-item">
+                    <div class="ranking-rank">5</div>
+                    <img src="https://picsum.photos/seed/school2/200/200" alt="校友头像" class="ranking-avatar">
+                    <div class="ranking-info">
+                        <div class="ranking-name">经济系学霸</div>
+                        <div class="ranking-desc">完成16个学习任务 · 理论专家</div>
+                    </div>
+                    <div class="ranking-score">
+                        <i>🏆</i> 13,890
+                    </div>
+                </div>
+                
+                <div class="ranking-item self-ranking">
+                    <div class="ranking-rank">23</div>
+                    <img src="https://picsum.photos/seed/currentuser/200/200" alt="你的头像" class="ranking-avatar">
+                    <div class="ranking-info">
+                        <div class="ranking-name">我（股票新手）</div>
+                        <div class="ranking-desc">完成8个学习任务 · 初级分析师</div>
+                    </div>
+                    <div class="ranking-score">
+                        <i>🏆</i> 8,640
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 页脚 -->
+    <footer>
+        <div class="footer-content">
+            <div class="footer-links">
+                <a href="#">关于我们</a>
+                <a href="#">学习资料</a>
+                <a href="#">用户协议</a>
+                <a href="#">隐私政策</a>
+                <a href="#">联系我们</a>
+            </div>
+            <p>© 2025 FinZoo金融乐园 - 股票学习模拟平台 | 免责声明：本平台仅用于学习，不构成投资建议</p>
+        </div>
+    </footer>
+
+    <!-- 提示框 -->
+    <div class="toast" id="toast"></div>
+
+    <script>
+        // IP切换功能：点击头像显示对应学习任务
+        function switchIP(ipName) {
+            // 隐藏所有面板
+            document.querySelectorAll('.ip-task-panel').forEach(panel => {
+                panel.style.display = 'none';
+            });
+            // 显示选中IP的面板
+            document.getElementById(`${ipName}-panel`).style.display = 'grid';
+            
+            // 更新头像激活状态
+            document.querySelectorAll('.ip-avatar').forEach(avatar => {
+                avatar.classList.remove('active');
+            });
+            document.getElementById(`${ipName}-avatar`).classList.add('active');
+            
+            showToast(`${document.querySelector(`[onclick="switchIP('${ipName}')"] .ip-name`).textContent}的学习任务已加载`);
+        }
+
+        // 社区标签切换
+        function switchCommunity(tabName) {
+            document.querySelectorAll('.community-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.community-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            document.querySelector(`[onclick="switchCommunity('${tabName}')"]`).classList.add('active');
+            document.getElementById(`${tabName}-content`).classList.add('active');
+        }
+
+        // 排行榜标签切换
+        function switchRanking(rankingType) {
+            document.querySelectorAll('.ranking-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.ranking-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            document.querySelector(`[onclick="switchRanking('${rankingType}')"]`).classList.add('active');
+            document.getElementById(`${rankingType}-ranking`).classList.add('active');
+        }
+
+        // 宠物喂养
+        function feedPet() {
+            showToast('已喂食股小探，心情值提升！');
+        }
+
+        // 宠物训练
+        function trainPet() {
+            showToast('股小探正在训练，能力值缓慢提升中...');
+        }
+
+        // 开始特定训练
+        function startTraining(type) {
+            let effect = '';
+            if (type === 'kline') effect = '分析能力+8';
+            if (type === 'finance') effect = '分析能力+10';
+            if (type === 'market') effect = '市场敏感度+6';
+            if (type === 'risk') effect = '风险识别+7';
+            
+            showToast(`训练完成，股小探${effect}！`);
+        }
+
+        // 完成任务
+        function completeTask(button) {
+            button.textContent = '已完成';
+            button.classList.add('completed');
+            button.disabled = true;
+            showToast('任务完成，获得积分奖励！');
+        }
+
+        // 显示提示框
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.style.display = 'block';
+            setTimeout(() => {
+                toast.style.display = 'none';
+            }, 3000);
+        }
+
+        // 任务筛选切换
+        document.querySelectorAll('.task-filter').forEach(filter => {
+            filter.addEventListener('click', function() {
+                document.querySelectorAll('.task-filter').forEach(f => f.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+    </script>
+</body>
+</html>
